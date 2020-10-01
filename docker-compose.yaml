@@ -1,0 +1,36 @@
+version: "3.4"
+
+networks:
+  shared-network:
+    driver: bridge
+services:
+    app:
+      networks:
+        - shared-network
+      hostname: "host"
+      ipc: host
+      pid: "host"
+      build: 
+          context: .
+          dockerfile: Dockerfile
+      ports:
+        - "8080:8080"
+
+    zookeeper:
+      networks:
+        - shared-network
+      image: "wurstmeister/zookeeper"
+      ports:
+        - "2181:2181"
+    kafka:
+      networks:
+        - shared-network
+      image: "wurstmeister/kafka"
+      restart: always
+      ports:
+        - "9092:9092"
+      environment:
+        - KAFKA_BROKER_ID=1
+        - KAFKA_ADVERTISED_PORT=9092
+        - KAFKA_ADVERTISED_HOST_NAME=kafka
+        - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
